@@ -5410,20 +5410,17 @@ public:
 
     static bool isOpenCLMapForced()  // force clEnqueueMapBuffer / clEnqueueUnmapMemObject OpenCL API
     {
-        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         static bool value = cv::utils::getConfigurationParameterBool("OPENCV_OPENCL_BUFFER_FORCE_MAPPING", false);
         return value;
     }
     static bool isOpenCLCopyingForced()  // force clEnqueueReadBuffer[Rect] / clEnqueueWriteBuffer[Rect] OpenCL API
     {
-        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         static bool value = cv::utils::getConfigurationParameterBool("OPENCV_OPENCL_BUFFER_FORCE_COPYING", false);
         return value;
     }
 
     void getBestFlags(const Context& ctx, AccessFlag /*flags*/, UMatUsageFlags usageFlags, int& createFlags, UMatData::MemoryFlag& flags0) const
     {
-                    // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         const Device& dev = ctx.device(0);
         createFlags = 0;
         if ((usageFlags & USAGE_ALLOCATE_HOST_MEMORY) != 0)
@@ -5694,7 +5691,6 @@ public:
 
     void deallocate_(UMatData* u) const
     {
-                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         CV_Assert(u);
         CV_Assert(u->handle);
         if ((u->allocatorFlags_ & ALLOCATOR_FLAGS_EXTERNAL_BUFFER) == 0)
@@ -5758,7 +5754,7 @@ public:
                     cl_command_queue q = (cl_command_queue)Queue::getDefault().ptr();
                     if( u->tempCopiedUMat() )
                     {
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" << std::endl;
                         AlignedDataPtr<false, true> alignedPtr(u->origdata, u->size, CV_OPENCL_DATA_PTR_ALIGNMENT);
                         CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE, 0,
                                             u->size, alignedPtr.getAlignedPtr(), 0, 0, 0));
@@ -5766,12 +5762,12 @@ public:
                     else
                     {
                         cl_int retval = 0;
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueMapBuffer" <<  std::endl;
                         if (u->tempUMat())
                         {
                             CV_Assert(u->mapcount == 0);
                             flushCleanupQueue(); // workaround for CL_OUT_OF_RESOURCES problem (#9960)
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueMapBuffer READ WRITE" <<  std::endl;
                         void* data = clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                 (CL_MAP_READ | CL_MAP_WRITE),
                                 0, u->size, 0, 0, 0, &retval);
@@ -5890,7 +5886,7 @@ public:
     // synchronized call (external UMatDataAutoLock, see UMat::getMat)
     void map(UMatData* u, AccessFlag accessFlags) const CV_OVERRIDE
     {
-                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        // std::cout << __FILE__ << ":" << __LINE__ << "  UMat::map" << std::endl;
         CV_Assert(u && u->handle);
 
         if (!!(accessFlags & ACCESS_WRITE))
@@ -5939,17 +5935,17 @@ public:
                     CV_Assert(u->mapcount++ == 0);
                     std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                     if ((accessFlags & ACCESS_WRITE) && (accessFlags & ACCESS_READ)) {
-                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                    std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueMapBuffer READ WRITE" << std::endl;
                         u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                          (CL_MAP_READ | CL_MAP_WRITE),
                                                          0, u->size, 0, 0, 0, &retval);
                     } else if ((accessFlags & ACCESS_WRITE)) {
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueMapBuffer map to WRITE to device" << std::endl;
                         u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                         (CL_MAP_WRITE),
                                                         0, u->size, 0, 0, 0, &retval);
                    } else {
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueMapBuffer map to READ from device" << std::endl;
                        u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                         (CL_MAP_READ),
                                                         0, u->size, 0, 0, 0, &retval);
@@ -5982,7 +5978,7 @@ public:
 #ifdef HAVE_OPENCL_SVM
             CV_DbgAssert((u->allocatorFlags_ & svm::OPENCL_SVM_BUFFER_MASK) == 0);
 #endif
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" << std::endl;
             cl_int retval = clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     0, u->size, alignedPtr.getAlignedPtr(), 0, 0, 0);
             CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueReadBuffer(q, handle=%p, CL_TRUE, 0, sz=%lld, data=%p, 0, 0, 0)",
@@ -6054,7 +6050,7 @@ public:
 #ifdef HAVE_OPENCL_SVM
             CV_DbgAssert((u->allocatorFlags_ & svm::OPENCL_SVM_BUFFER_MASK) == 0);
 #endif
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueWriteBuffer" << std::endl;
             retval = clEnqueueWriteBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                 0, u->size, alignedPtr.getAlignedPtr(), 0, 0, 0);
             CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueWriteBuffer(q, handle=%p, CL_TRUE, 0, sz=%lld, data=%p, 0, 0, 0)",
@@ -6227,7 +6223,7 @@ public:
             if( iscontinuous )
             {
                 AlignedDataPtr<false, true> alignedPtr((uchar*)dstptr, total, CV_OPENCL_DATA_PTR_ALIGNMENT);
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" <<       std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     srcrawofs, total, alignedPtr.getAlignedPtr(), 0, 0, 0));
             }
@@ -6243,7 +6239,7 @@ public:
                 CV_Assert(new_srcstep[0] >= new_sz[0]);
                 total = alignSize(new_srcstep[0]*new_sz[1] + membuf_ofs, padding);
                 total = std::min(total, u->size - new_srcrawofs);
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" <<  std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                  new_srcrawofs, total, ptr, 0, 0, 0));
                 for( size_t i = 0; i < new_sz[1]; i++ )
@@ -6254,7 +6250,7 @@ public:
                 AlignedDataPtr2D<false, true> alignedPtr((uchar*)dstptr, new_sz[1], new_sz[0], new_dststep[0], CV_OPENCL_DATA_PTR_ALIGNMENT);
                 uchar* ptr = alignedPtr.getAlignedPtr();
 
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" <<  std::endl;
                 CV_OCL_CHECK(clEnqueueReadBufferRect(q, (cl_mem)u->handle, CL_TRUE,
                     new_srcofs, new_dstofs, new_sz,
                     new_srcstep[0], 0,
@@ -6364,7 +6360,7 @@ public:
             if( iscontinuous )
             {
                 AlignedDataPtr<true, false> alignedPtr((uchar*)srcptr, total, CV_OPENCL_DATA_PTR_ALIGNMENT);
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueWriteBuffer" <<  std::endl;
                 cl_int retval = clEnqueueWriteBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     dstrawofs, total, alignedPtr.getAlignedPtr(), 0, 0, 0);
                 CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueWriteBuffer(q, handle=%p, CL_TRUE, offset=%lld, sz=%lld, data=%p, 0, 0, 0)",
@@ -6385,7 +6381,7 @@ public:
                 /*printf("new_sz0=%d, new_sz1=%d, membuf_ofs=%d, total=%d (%08x), new_dstrawofs=%d (%08x)\n",
                        (int)new_sz[0], (int)new_sz[1], (int)membuf_ofs,
                        (int)total, (int)total, (int)new_dstrawofs, (int)new_dstrawofs);*/
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" <<  std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                  new_dstrawofs, total, ptr, 0, 0, 0));
                 for( size_t i = 0; i < new_sz[1]; i++ )
@@ -6398,7 +6394,7 @@ public:
                 AlignedDataPtr2D<true, false> alignedPtr((uchar*)srcptr, new_sz[1], new_sz[0], new_srcstep[0], CV_OPENCL_DATA_PTR_ALIGNMENT);
                 uchar* ptr = alignedPtr.getAlignedPtr();
 
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueWriteBuffer" <<  std::endl;
                 CV_OCL_CHECK(clEnqueueWriteBufferRect(q, (cl_mem)u->handle, CL_TRUE,
                     new_dstofs, new_srcofs, new_sz,
                     new_dststep[0], 0,
@@ -6569,7 +6565,7 @@ public:
                 size_t dst_total = alignSize(new_dststep[0]*new_sz[1] + dstmembuf_ofs, padding);
                 dst_total = std::min(dst_total, dst->size - new_dstrawofs);
 
-                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << "  clEnqueueReadBuffer" <<  std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)src->handle, CL_TRUE,
                                                  new_srcrawofs, src_total, srcptr, 0, 0, 0));
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)dst->handle, CL_TRUE,
