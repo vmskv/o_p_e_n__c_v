@@ -5410,17 +5410,20 @@ public:
 
     static bool isOpenCLMapForced()  // force clEnqueueMapBuffer / clEnqueueUnmapMemObject OpenCL API
     {
+        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         static bool value = cv::utils::getConfigurationParameterBool("OPENCV_OPENCL_BUFFER_FORCE_MAPPING", false);
         return value;
     }
     static bool isOpenCLCopyingForced()  // force clEnqueueReadBuffer[Rect] / clEnqueueWriteBuffer[Rect] OpenCL API
     {
+        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         static bool value = cv::utils::getConfigurationParameterBool("OPENCV_OPENCL_BUFFER_FORCE_COPYING", false);
         return value;
     }
 
     void getBestFlags(const Context& ctx, AccessFlag /*flags*/, UMatUsageFlags usageFlags, int& createFlags, UMatData::MemoryFlag& flags0) const
     {
+                    // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         const Device& dev = ctx.device(0);
         createFlags = 0;
         if ((usageFlags & USAGE_ALLOCATE_HOST_MEMORY) != 0)
@@ -5691,6 +5694,7 @@ public:
 
     void deallocate_(UMatData* u) const
     {
+                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         CV_Assert(u);
         CV_Assert(u->handle);
         if ((u->allocatorFlags_ & ALLOCATOR_FLAGS_EXTERNAL_BUFFER) == 0)
@@ -5760,11 +5764,13 @@ public:
                     else
                     {
                         cl_int retval = 0;
+                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         if (u->tempUMat())
                         {
                             CV_Assert(u->mapcount == 0);
                             flushCleanupQueue(); // workaround for CL_OUT_OF_RESOURCES problem (#9960)
-                            void* data = clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
+                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        void* data = clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                 (CL_MAP_READ | CL_MAP_WRITE),
                                 0, u->size, 0, 0, 0, &retval);
                             CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueMapBuffer(handle=%p, sz=%lld) => %p", (void*)u->handle, (long long int)u->size, data).c_str());
@@ -5882,6 +5888,7 @@ public:
     // synchronized call (external UMatDataAutoLock, see UMat::getMat)
     void map(UMatData* u, AccessFlag accessFlags) const CV_OVERRIDE
     {
+                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
         CV_Assert(u && u->handle);
 
         if (!!(accessFlags & ACCESS_WRITE))
@@ -5923,13 +5930,26 @@ public:
 #endif
 
                 cl_int retval = CL_SUCCESS;
+                // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 if (!u->deviceMemMapped())
                 {
                     CV_Assert(u->refcount == 1);
                     CV_Assert(u->mapcount++ == 0);
-                    u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
+                    // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                    if ((accessFlags & ACCESS_WRITE) && (accessFlags & ACCESS_READ)) {
+                        u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                          (CL_MAP_READ | CL_MAP_WRITE),
                                                          0, u->size, 0, 0, 0, &retval);
+                    } else if ((accessFlags & ACCESS_WRITE)) {
+                        u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
+                                                         (CL_MAP_WRITE),
+                                                         0, u->size, 0, 0, 0, &retval);
+                    } else {
+                        u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
+                                                         (CL_MAP_READ),
+                                                         0, u->size, 0, 0, 0, &retval);
+                    }
+
                     CV_OCL_DBG_CHECK_RESULT(retval, cv::format("clEnqueueMapBuffer(handle=%p, sz=%lld) => %p", (void*)u->handle, (long long int)u->size, u->data).c_str());
                 }
                 if (u->data && retval == CL_SUCCESS)
