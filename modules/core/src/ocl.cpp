@@ -5982,6 +5982,7 @@ public:
 #ifdef HAVE_OPENCL_SVM
             CV_DbgAssert((u->allocatorFlags_ & svm::OPENCL_SVM_BUFFER_MASK) == 0);
 #endif
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
             cl_int retval = clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     0, u->size, alignedPtr.getAlignedPtr(), 0, 0, 0);
             CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueReadBuffer(q, handle=%p, CL_TRUE, 0, sz=%lld, data=%p, 0, 0, 0)",
@@ -6053,6 +6054,7 @@ public:
 #ifdef HAVE_OPENCL_SVM
             CV_DbgAssert((u->allocatorFlags_ & svm::OPENCL_SVM_BUFFER_MASK) == 0);
 #endif
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
             retval = clEnqueueWriteBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                 0, u->size, alignedPtr.getAlignedPtr(), 0, 0, 0);
             CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueWriteBuffer(q, handle=%p, CL_TRUE, 0, sz=%lld, data=%p, 0, 0, 0)",
@@ -6225,6 +6227,7 @@ public:
             if( iscontinuous )
             {
                 AlignedDataPtr<false, true> alignedPtr((uchar*)dstptr, total, CV_OPENCL_DATA_PTR_ALIGNMENT);
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     srcrawofs, total, alignedPtr.getAlignedPtr(), 0, 0, 0));
             }
@@ -6240,6 +6243,7 @@ public:
                 CV_Assert(new_srcstep[0] >= new_sz[0]);
                 total = alignSize(new_srcstep[0]*new_sz[1] + membuf_ofs, padding);
                 total = std::min(total, u->size - new_srcrawofs);
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                  new_srcrawofs, total, ptr, 0, 0, 0));
                 for( size_t i = 0; i < new_sz[1]; i++ )
@@ -6250,6 +6254,7 @@ public:
                 AlignedDataPtr2D<false, true> alignedPtr((uchar*)dstptr, new_sz[1], new_sz[0], new_dststep[0], CV_OPENCL_DATA_PTR_ALIGNMENT);
                 uchar* ptr = alignedPtr.getAlignedPtr();
 
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueReadBufferRect(q, (cl_mem)u->handle, CL_TRUE,
                     new_srcofs, new_dstofs, new_sz,
                     new_srcstep[0], 0,
@@ -6359,6 +6364,7 @@ public:
             if( iscontinuous )
             {
                 AlignedDataPtr<true, false> alignedPtr((uchar*)srcptr, total, CV_OPENCL_DATA_PTR_ALIGNMENT);
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 cl_int retval = clEnqueueWriteBuffer(q, (cl_mem)u->handle, CL_TRUE,
                     dstrawofs, total, alignedPtr.getAlignedPtr(), 0, 0, 0);
                 CV_OCL_CHECK_RESULT(retval, cv::format("clEnqueueWriteBuffer(q, handle=%p, CL_TRUE, offset=%lld, sz=%lld, data=%p, 0, 0, 0)",
@@ -6379,6 +6385,7 @@ public:
                 /*printf("new_sz0=%d, new_sz1=%d, membuf_ofs=%d, total=%d (%08x), new_dstrawofs=%d (%08x)\n",
                        (int)new_sz[0], (int)new_sz[1], (int)membuf_ofs,
                        (int)total, (int)total, (int)new_dstrawofs, (int)new_dstrawofs);*/
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                  new_dstrawofs, total, ptr, 0, 0, 0));
                 for( size_t i = 0; i < new_sz[1]; i++ )
@@ -6391,6 +6398,7 @@ public:
                 AlignedDataPtr2D<true, false> alignedPtr((uchar*)srcptr, new_sz[1], new_sz[0], new_srcstep[0], CV_OPENCL_DATA_PTR_ALIGNMENT);
                 uchar* ptr = alignedPtr.getAlignedPtr();
 
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueWriteBufferRect(q, (cl_mem)u->handle, CL_TRUE,
                     new_dstofs, new_srcofs, new_sz,
                     new_dststep[0], 0,
@@ -6561,6 +6569,7 @@ public:
                 size_t dst_total = alignSize(new_dststep[0]*new_sz[1] + dstmembuf_ofs, padding);
                 dst_total = std::min(dst_total, dst->size - new_dstrawofs);
 
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)src->handle, CL_TRUE,
                                                  new_srcrawofs, src_total, srcptr, 0, 0, 0));
                 CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)dst->handle, CL_TRUE,
