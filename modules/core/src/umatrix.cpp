@@ -1073,7 +1073,7 @@ Mat UMat::getMat(AccessFlag accessFlags) const
     if(!u)
         return Mat();
     // TODO Support ACCESS_READ (ACCESS_WRITE) without unnecessary data transfers
-    accessFlags |= ACCESS_RW;
+    //accessFlags |= ACCESS_RW;
     UMatDataAutoLock autolock(u);
     try
     {
