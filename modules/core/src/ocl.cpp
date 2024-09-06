@@ -5754,9 +5754,11 @@ public:
                 else
 #endif
                 {
+                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                     cl_command_queue q = (cl_command_queue)Queue::getDefault().ptr();
                     if( u->tempCopiedUMat() )
                     {
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         AlignedDataPtr<false, true> alignedPtr(u->origdata, u->size, CV_OPENCL_DATA_PTR_ALIGNMENT);
                         CV_OCL_CHECK(clEnqueueReadBuffer(q, (cl_mem)u->handle, CL_TRUE, 0,
                                             u->size, alignedPtr.getAlignedPtr(), 0, 0, 0));
@@ -5764,12 +5766,12 @@ public:
                     else
                     {
                         cl_int retval = 0;
-                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         if (u->tempUMat())
                         {
                             CV_Assert(u->mapcount == 0);
                             flushCleanupQueue(); // workaround for CL_OUT_OF_RESOURCES problem (#9960)
-                        // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         void* data = clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                 (CL_MAP_READ | CL_MAP_WRITE),
                                 0, u->size, 0, 0, 0, &retval);
@@ -5930,12 +5932,12 @@ public:
 #endif
 
                 cl_int retval = CL_SUCCESS;
-                // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                 if (!u->deviceMemMapped())
                 {
                     CV_Assert(u->refcount == 1);
                     CV_Assert(u->mapcount++ == 0);
-                    // std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                     if ((accessFlags & ACCESS_WRITE) && (accessFlags & ACCESS_READ)) {
                         u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                          (CL_MAP_READ | CL_MAP_WRITE),
