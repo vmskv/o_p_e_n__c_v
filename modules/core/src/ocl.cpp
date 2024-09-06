@@ -5939,18 +5939,21 @@ public:
                     CV_Assert(u->mapcount++ == 0);
                     std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                     if ((accessFlags & ACCESS_WRITE) && (accessFlags & ACCESS_READ)) {
+                    std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
                                                          (CL_MAP_READ | CL_MAP_WRITE),
                                                          0, u->size, 0, 0, 0, &retval);
                     } else if ((accessFlags & ACCESS_WRITE)) {
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
                         u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
-                                                         (CL_MAP_WRITE),
-                                                         0, u->size, 0, 0, 0, &retval);
-                    } else {
-                        u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
-                                                         (CL_MAP_READ),
-                                                         0, u->size, 0, 0, 0, &retval);
-                    }
+                                                        (CL_MAP_WRITE),
+                                                        0, u->size, 0, 0, 0, &retval);
+                   } else {
+                        std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+                       u->data = (uchar*)clEnqueueMapBuffer(q, (cl_mem)u->handle, CL_TRUE,
+                                                        (CL_MAP_READ),
+                                                        0, u->size, 0, 0, 0, &retval);
+                   }
 
                     CV_OCL_DBG_CHECK_RESULT(retval, cv::format("clEnqueueMapBuffer(handle=%p, sz=%lld) => %p", (void*)u->handle, (long long int)u->size, u->data).c_str());
                 }
